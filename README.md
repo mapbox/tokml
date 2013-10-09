@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/tmcw/tokml.png)](https://travis-ci.org/tmcw/tokml)
+[![Build Status](https://travis-ci.org/mapbox/tokml.png)](https://travis-ci.org/mapbox/tokml)
 
 # tokml
 
