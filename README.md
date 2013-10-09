@@ -6,7 +6,13 @@ Convert [GeoJSON](http://geojson.org/) to [KML](https://developers.google.com/km
 
 ## Usage
 
+with node/browserify
+
     npm install --save tokml
+
+otherwise:
+
+    wget https://raw.github.com/mapbox/tokml/master/tokml.js
 
 as a binary:
 
