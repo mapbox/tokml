@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 
 var tokml = require('./'),
+    sharkdown = require('sharkdown'),
+    concat = require('concat-stream'),
     fs = require('fs'),
     argv = require('minimist')(process.argv.slice(2));
 
-process.stdout.write(
-    tokml(JSON.parse(fs.readFileSync(argv._[0])))
-);
+if (process.stdin.isTTY && !argv._[0]) {
+    process.stdout.write(sharkdown(fs.readFileSync(__dirname + '/README.md')));
+    process.exit(1);
+}
+
+(argv._.length ? fs.createReadStream(argv._[0]) : process.stdin).pipe(concat(convert));
+
+function convert(data) { process.stdout.write(tokml(JSON.parse(data))); }

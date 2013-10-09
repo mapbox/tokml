@@ -12,6 +12,15 @@ describe('tokml', function() {
     it('linestring', function() {
         expect(tokml(file('linestring.geojson'))).to.eql(output('linestring.kml'));
     });
+    it('multilinestring', function() {
+        expect(tokml(file('multilinestring.geojson'))).to.eql(output('multilinestring.kml'));
+    });
+    it('multipoint', function() {
+        expect(tokml(file('multipoint.geojson'))).to.eql(output('multipoint.kml'));
+    });
+    it('multipolygon', function() {
+        expect(tokml(file('multipolygon.geojson'))).to.eql(output('multipolygon.kml'));
+    });
 });
 
 function file(f) {

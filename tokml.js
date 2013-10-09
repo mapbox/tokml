@@ -1,3 +1,5 @@
+(function(e){if("function"==typeof bootstrap)bootstrap("tokml",e);else if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else if("undefined"!=typeof ses){if(!ses.ok())return;ses.makeTokml=e}else"undefined"!=typeof window?window.tokml=e():global.tokml=e()})(function(){var define,ses,bootstrap,module,exports;
+return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = function tokml(geojson) {
     return '<?xml version="1.0" encoding="UTF-8"?>' +
         tag('kml',
@@ -88,3 +90,8 @@ function attr(_) {
 function tag(el, contents, attributes) {
     return '<' + el + attr(attributes) + '>' + contents + '</' + el + '>';
 }
+
+},{}]},{},[1])
+(1)
+});
+;

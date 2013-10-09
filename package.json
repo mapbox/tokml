@@ -19,9 +19,12 @@
   "license": "BSD-2-Clause",
   "devDependencies": {
     "expect.js": "~0.2.0",
-    "mocha": "~1.13.0"
+    "mocha": "~1.13.0",
+    "glob": "~3.2.6"
   },
   "dependencies": {
-    "minimist": "0.0.5"
+    "minimist": "0.0.5",
+    "concat-stream": "~1.0.1",
+    "sharkdown": "0.0.1"
   }
 }
