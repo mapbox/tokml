@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+var tokml = require('./'),
+    fs = require('fs'),
+    argv = require('minimist')(process.argv.slice(2));
+
+process.stdout.write(
+    tokml(JSON.parse(fs.readFileSync(argv._[0])))
+);
