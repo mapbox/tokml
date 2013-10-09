@@ -6,6 +6,10 @@
   "scripts": {
     "test": "mocha -R spec"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mapbox/tokml.git"
+  },
   "keywords": [
     "kml",
     "geojson",
