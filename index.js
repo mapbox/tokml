@@ -1,10 +1,34 @@
-module.exports = function tokml(geojson) {
+module.exports = function tokml(geojson, options) {
+
+    options = options || {
+        name: 'name',
+        description: 'description',
+    };
+
     return '<?xml version="1.0" encoding="UTF-8"?>' +
         tag('kml',
             tag('Document',
-                geojson.features.map(feature).join('')
+                geojson.features.map(feature(options)).join('')
                ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
 };
+
+function feature(options) {
+    return function(_) {
+        return tag('Placemark',
+            name(_.properties, options) +
+            description(_.properties, options) +
+            geometry.any(_.geometry) +
+            extendeddata(_.properties));
+    };
+}
+
+function name(_, options) {
+    return (_[options.name]) ? tag('name', encode(_[options.name])) : '';
+}
+
+function description(_, options) {
+    return (_[options.description]) ? tag('description', encode(_[options.description])) : '';
+}
 
 // ## Geometry Types
 //
@@ -63,13 +87,7 @@ function extendeddata(_) {
 }
 
 function data(_) {
-    return tag('Data', _[1], [['name', _[0]]]);
-}
-
-function feature(_) {
-    return tag('Placemark',
-        geometry.any(_.geometry) +
-        extendeddata(_.properties));
+    return tag('Data', encode(_[1]), [['name', encode(_[0])]]);
 }
 
 // ## Helpers
@@ -87,4 +105,12 @@ function attr(_) {
 
 function tag(el, contents, attributes) {
     return '<' + el + attr(attributes) + '>' + contents + '</' + el + '>';
+}
+
+
+function encode(_) {
+    return _.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }

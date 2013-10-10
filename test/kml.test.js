@@ -3,23 +3,39 @@ var expect = require('expect.js'),
     tokml = require('../');
 
 describe('tokml', function() {
-    it('point', function() {
-        expect(tokml(file('point.geojson'))).to.eql(output('point.kml'));
+    describe('geometry', function() {
+
+        it('point', function() {
+            expect(tokml(file('point.geojson'))).to.eql(output('point.kml'));
+        });
+        it('polygon', function() {
+            expect(tokml(file('polygon.geojson'))).to.eql(output('polygon.kml'));
+        });
+        it('linestring', function() {
+            expect(tokml(file('linestring.geojson'))).to.eql(output('linestring.kml'));
+        });
+        it('multilinestring', function() {
+            expect(tokml(file('multilinestring.geojson'))).to.eql(output('multilinestring.kml'));
+        });
+        it('multipoint', function() {
+            expect(tokml(file('multipoint.geojson'))).to.eql(output('multipoint.kml'));
+        });
+        it('multipolygon', function() {
+            expect(tokml(file('multipolygon.geojson'))).to.eql(output('multipolygon.kml'));
+        });
+
     });
-    it('polygon', function() {
-        expect(tokml(file('polygon.geojson'))).to.eql(output('polygon.kml'));
+
+    describe('quirks', function() {
+        it('cdata', function() {
+            expect(tokml(file('cdata.geojson'))).to.eql(output('cdata.kml'));
+        });
     });
-    it('linestring', function() {
-        expect(tokml(file('linestring.geojson'))).to.eql(output('linestring.kml'));
-    });
-    it('multilinestring', function() {
-        expect(tokml(file('multilinestring.geojson'))).to.eql(output('multilinestring.kml'));
-    });
-    it('multipoint', function() {
-        expect(tokml(file('multipoint.geojson'))).to.eql(output('multipoint.kml'));
-    });
-    it('multipolygon', function() {
-        expect(tokml(file('multipolygon.geojson'))).to.eql(output('multipolygon.kml'));
+
+    describe('name & description', function() {
+        it('name and description', function() {
+            expect(tokml(file('name_desc.geojson'))).to.eql(output('name_desc.kml'));
+        });
     });
 });
 
