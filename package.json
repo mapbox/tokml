@@ -24,7 +24,9 @@
   "devDependencies": {
     "expect.js": "~0.2.0",
     "mocha": "~1.13.0",
-    "glob": "~3.2.6"
+    "glob": "~3.2.6",
+    "corslite": "0.0.5",
+    "filesaver.js": "~2013.1.23"
   },
   "dependencies": {
     "minimist": "0.0.5",
