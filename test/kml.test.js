@@ -30,6 +30,14 @@ describe('tokml', function() {
         it('cdata', function() {
             expect(tokml(file('cdata.geojson'))).to.eql(output('cdata.kml'));
         });
+
+        it('single feature', function() {
+            expect(tokml(file('singlefeature.geojson'))).to.eql(output('singlefeature.kml'));
+        });
+
+        it('single geometry', function() {
+            expect(tokml(file('singlegeometry.geojson'))).to.eql(output('singlegeometry.kml'));
+        });
     });
 
     describe('name & description', function() {

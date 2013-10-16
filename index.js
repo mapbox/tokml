@@ -8,7 +8,7 @@ module.exports = function tokml(geojson, options) {
     return '<?xml version="1.0" encoding="UTF-8"?>' +
         tag('kml',
             tag('Document',
-                geojson.features.map(feature(options)).join('')
+                root(geojson, options)
                ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
 };
 
@@ -20,6 +20,23 @@ function feature(options) {
             geometry.any(_.geometry) +
             extendeddata(_.properties));
     };
+}
+
+function root(_, options) {
+    if (!_.type) return '';
+    switch (_.type) {
+        case 'FeatureCollection': return _.features.map(feature(options)).join('');
+        case 'Feature': return feature(options)(_);
+        default:
+            if (_.type in geometry) {
+                return feature(options)({
+                    type: 'Feature',
+                    geometry: _,
+                    properties: {}
+                });
+            }
+    }
+    return '';
 }
 
 function name(_, options) {
@@ -73,7 +90,9 @@ var geometry = {
     any: function(_) {
         if (geometry[_.type]) {
             return geometry[_.type](_);
-        } else { }
+        } else {
+            return '';
+        }
     }
 };
 
@@ -109,7 +128,7 @@ function tag(el, contents, attributes) {
 
 
 function encode(_) {
-    return _.replace(/&/g, '&amp;')
+    return (_ || '').replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
