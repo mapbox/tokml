@@ -1,0 +1,11 @@
+{ "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "geometry": { "type": "unknown" },
+    "properties": {
+      "prop0": "value0",
+      "prop1": "val2"
+      }
+    }
+  ]
+}

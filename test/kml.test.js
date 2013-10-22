@@ -23,6 +23,9 @@ describe('tokml', function() {
         it('multipolygon', function() {
             expect(tokml(file('multipolygon.geojson'))).to.eql(output('multipolygon.kml'));
         });
+        it('geometrycollection', function() {
+            expect(tokml(file('geometrycollection.geojson'))).to.eql(output('geometrycollection.kml'));
+        });
 
     });
 
@@ -37,6 +40,23 @@ describe('tokml', function() {
 
         it('single geometry', function() {
             expect(tokml(file('singlegeometry.geojson'))).to.eql(output('singlegeometry.kml'));
+        });
+
+        it('unknown type', function() {
+
+            expect(tokml(file('unknown.geojson'))).to.eql(output('unknown.kml'));
+        });
+
+        it('null data', function() {
+            expect(tokml(file('nulldata.geojson'))).to.eql(output('nulldata.kml'));
+        });
+
+        it('unknown geometry', function() {
+            expect(tokml(file('unknowngeom.geojson'))).to.eql(output('unknowngeom.kml'));
+        });
+
+        it('no type', function() {
+            expect(tokml(file('notype.geojson'))).to.eql(output('notype.kml'));
         });
     });
 
