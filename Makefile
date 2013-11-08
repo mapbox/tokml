@@ -1,6 +1,6 @@
 all: tokml.js site/site.js
 
-tokml.js:
+tokml.js: index.js
 	browserify -s tokml index.js > tokml.js
 
 site/site.js: site/index.js
