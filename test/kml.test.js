@@ -64,6 +64,12 @@ describe('tokml', function() {
         it('name and description', function() {
             expect(tokml(file('name_desc.geojson'))).to.eql(output('name_desc.kml'));
         });
+        it('document name & description', function() {
+            expect(tokml(file('document_name_desc.geojson'), {
+                documentName: 'Document Title',
+                documentDescription: 'Document Description',
+            })).to.eql(output('document_name_desc.kml'));
+        });
     });
 });
 

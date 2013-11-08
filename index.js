@@ -1,6 +1,8 @@
 module.exports = function tokml(geojson, options) {
 
     options = options || {
+        documentName: undefined,
+        documentDescription: undefined,
         name: 'name',
         description: 'description',
     };
@@ -8,6 +10,8 @@ module.exports = function tokml(geojson, options) {
     return '<?xml version="1.0" encoding="UTF-8"?>' +
         tag('kml',
             tag('Document',
+                documentName(options) +
+                documentDescription(options) +
                 root(geojson, options)
                ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
 };
@@ -37,6 +41,14 @@ function root(_, options) {
             }
     }
     return '';
+}
+
+function documentName(options) {
+    return (options.documentName !== undefined) ? tag('name', options.documentName) : '';
+}
+
+function documentDescription(options) {
+    return (options.documentDescription !== undefined) ? tag('description', options.documentDescription) : '';
 }
 
 function name(_, options) {
