@@ -52,11 +52,11 @@ function documentDescription(options) {
 }
 
 function name(_, options) {
-    return (_[options.name]) ? tag('name', encode(_[options.name])) : '';
+    return _[options.name] ? tag('name', encode(_[options.name])) : '';
 }
 
 function description(_, options) {
-    return (_[options.description]) ? tag('description', encode(_[options.description])) : '';
+    return _[options.description] ? tag('description', encode(_[options.description])) : '';
 }
 
 // ## Geometry Types
@@ -137,7 +137,6 @@ function attr(_) {
 function tag(el, contents, attributes) {
     return '<' + el + attr(attributes) + '>' + contents + '</' + el + '>';
 }
-
 
 function encode(_) {
     return (_ || '').replace(/&/g, '&amp;')
