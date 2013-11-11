@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mapbox/tokml.png)](https://travis-ci.org/mapbox/tokml)
+j![Build Status](https://travis-ci.org/mapbox/tokml.png)](https://travis-ci.org/mapbox/tokml)
 
 # tokml
 
@@ -23,15 +23,49 @@ as a binary:
 ## Example
 
 ```js
+// kml is a string of KML data, geojsonObject is a JavaScript object of
+// GeoJSON data
 var kml = tokml(geojsonObject);
+
+// grab name and description properties from each object and write them in
+// KML
+var kmlNameDescription = tokml(geojsonObject, {
+    name: 'name',
+    description: 'description'
+});
+
+// name and describe the KML document as a whole
+var kmlDocumentName = tokml(geojsonObject, {
+    documentName: 'My List Of Markers',
+    documentDescription: "One of the many places you are not I am"
+});
 ```
 
 ## API
 
-### `tokml(geojsonObject)`
+### `tokml(geojsonObject, [options])`
 
 Given [GeoJSON](http://geojson.org/) data as an object, return KML data as a
 string of XML.
+
+`options` is an optional object that takes the following options:
+
+**The property to name/description mapping:** while GeoJSON supports freeform
+`properties` on each feature, KML has an expectation of `name` and `description`
+properties that are often styled and displayed automatically. These options let
+you define a mapping from the GeoJSON style to KML's.
+
+* `name`: the name of the property in each GeoJSON Feature that contains
+  the feature's name
+* `description`: the name of the property in each GeoJSON Feature that contains
+  the feature's description
+
+**Document name and description**: KML supports `name` and `description` properties
+for the full document.
+
+* `documentName`: the name of the full document
+* `documentDescription`: the description of the full document
+
 
 ## Development
 
