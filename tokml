@@ -4,13 +4,20 @@ var tokml = require('./'),
     sharkdown = require('sharkdown'),
     concat = require('concat-stream'),
     fs = require('fs'),
-    argv = require('minimist')(process.argv.slice(2));
+    argv = require('minimist')(process.argv.slice(2), {
+        boolean: 'simplestyle'
+    }),
+    simplestyle = !!argv.simplestyle;
 
 if (process.stdin.isTTY && !argv._[0]) {
-    process.stdout.write(sharkdown(fs.readFileSync(__dirname + '/README.md')));
+    process.stdout.write(sharkdown(fs.readFileSync(__dirname + '/HELP.md')));
     process.exit(1);
 }
 
 (argv._.length ? fs.createReadStream(argv._[0]) : process.stdin).pipe(concat(convert));
 
-function convert(data) { process.stdout.write(tokml(JSON.parse(data))); }
+function convert(data) {
+    process.stdout.write(tokml(JSON.parse(data), {
+        simplestyle: simplestyle
+    }));
+}
