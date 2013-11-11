@@ -66,7 +66,7 @@ for the full document.
 * `documentName`: the name of the full document
 * `documentDescription`: the description of the full document
 
-**[simplestyle-spec](https://github.com/mapbox/simplestyle-spec) support:
+**[simplestyle-spec](https://github.com/mapbox/simplestyle-spec)** support:
 
 * `simplestyle`: set to `true` to convert simplestyle-spec styles into KML styles
 
