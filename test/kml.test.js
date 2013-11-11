@@ -71,6 +71,14 @@ describe('tokml', function() {
             })).to.eql(output('document_name_desc.kml'));
         });
     });
+
+    describe('simplestyle spec', function() {
+        it('basic marker', function() {
+            expect(tokml(file('simplestyle.geojson'), {
+                simplestyle: true
+            })).to.eql(output('simplestyle.kml'));
+        });
+    });
 });
 
 function file(f) {
