@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Fox</name><description>A hound</description><Point><coordinates>100,0</coordinates></Point><ExtendedData><Data name="name">Fox</Data><Data name="description">A hound</Data><Data name="count">4</Data></ExtendedData></Placemark></Document></kml>

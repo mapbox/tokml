@@ -1,0 +1,15 @@
+{ "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [100.0, 0.0]
+    },
+    "properties": {
+      "name": "Fox",
+      "description": "A hound",
+      "count": 4
+      }
+    }
+  ]
+}

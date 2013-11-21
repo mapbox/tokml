@@ -58,6 +58,10 @@ describe('tokml', function() {
         it('no type', function() {
             expect(tokml(file('notype.geojson'))).to.eql(output('notype.kml'));
         });
+
+        it('non-string values', function() {
+            expect(tokml(file('number_property.geojson'))).to.eql(output('number_property.kml'));
+        });
     });
 
     describe('name & description', function() {

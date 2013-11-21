@@ -184,7 +184,7 @@ function tag(el, contents, attributes) {
 }
 
 function encode(_) {
-    return (_ || '').replace(/&/g, '&amp;')
+    return (_ === null ? '' : _.toString()).replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
