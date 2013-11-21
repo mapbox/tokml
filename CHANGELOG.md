@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Fix encoded output of non-string data values
+
 ## 0.2.0
 
 * [simplestyle-spec](https://github.com/mapbox/simplestyle-spec) support
