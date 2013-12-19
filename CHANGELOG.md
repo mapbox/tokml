@@ -1,3 +1,8 @@
+## 0.2.2
+
+* Fix formatting of `ExtendedData` sections
+* Improved CLI help
+
 ## 0.2.1
 
 * Fix encoded output of non-string data values
