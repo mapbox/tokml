@@ -126,7 +126,7 @@ function extendeddata(_) {
 }
 
 function data(_) {
-    return tag('Data', encode(_[1]), [['name', encode(_[0])]]);
+    return tag('Data', tag('value', encode(_[1])), [['name', encode(_[0])]]);
 }
 
 // ## Icons

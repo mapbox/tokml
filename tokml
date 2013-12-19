@@ -17,7 +17,5 @@ if (process.stdin.isTTY && !argv._[0]) {
 (argv._.length ? fs.createReadStream(argv._[0]) : process.stdin).pipe(concat(convert));
 
 function convert(data) {
-    process.stdout.write(tokml(JSON.parse(data), {
-        simplestyle: simplestyle
-    }));
+    process.stdout.write(tokml(JSON.parse(data), argv));
 }
