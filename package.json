@@ -4,7 +4,7 @@
   "description": "convert geojson to kml",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -R spec"
+    "test": "tap test/*.js"
   },
   "repository": {
     "type": "git",
@@ -22,11 +22,11 @@
   "author": "Tom MacWright",
   "license": "BSD-2-Clause",
   "devDependencies": {
-    "expect.js": "~0.2.0",
-    "mocha": "~1.13.0",
     "glob": "~3.2.6",
     "corslite": "0.0.5",
-    "filesaver.js": "~2013.1.23"
+    "filesaver.js": "~2013.1.23",
+    "tap": "~0.4.8",
+    "fuzzer": "0.0.0"
   },
   "dependencies": {
     "minimist": "0.0.5",

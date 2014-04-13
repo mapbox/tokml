@@ -25,6 +25,7 @@ function feature(options) {
             styleDefinition = iconstyle(_.properties);
             styleReference = tag('styleUrl', '#' + iconHash(_.properties));
         }
+        if (!_.properties || !geometry.valid(_.geometry)) return '';
         return styleDefinition + tag('Placemark',
             name(_.properties, options) +
             description(_.properties, options) +
@@ -37,16 +38,17 @@ function feature(options) {
 function root(_, options) {
     if (!_.type) return '';
     switch (_.type) {
-        case 'FeatureCollection': return _.features.map(feature(options)).join('');
-        case 'Feature': return feature(options)(_);
+        case 'FeatureCollection':
+            if (!_.features) return '';
+            return _.features.map(feature(options)).join('');
+        case 'Feature':
+            return feature(options)(_);
         default:
-            if (_.type in geometry) {
-                return feature(options)({
-                    type: 'Feature',
-                    geometry: _,
-                    properties: {}
-                });
-            }
+            return feature(options)({
+                type: 'Feature',
+                geometry: _,
+                properties: {}
+            });
     }
     return '';
 }
@@ -106,6 +108,10 @@ var geometry = {
     GeometryCollection: function(_) {
         return tag('MultiGeometry',
             _.geometries.map(geometry.any).join(''));
+    },
+    valid: function(_) {
+        return _ && _.type && (_.coordinates ||
+            _.type === 'GeometryCollection' && _.geometries.every(geometry.valid));
     },
     any: function(_) {
         if (geometry[_.type]) {

@@ -1,94 +1,76 @@
-var expect = require('expect.js'),
+var test = require('tap').test,
     fs = require('fs'),
+    glob = require('glob'),
+    fuzzer = require('fuzzer'),
     tokml = require('../');
 
-describe('tokml', function() {
-    describe('geometry', function() {
+test('tokml', function(t) {
 
-        it('point', function() {
-            expect(tokml(file('point.geojson'))).to.eql(output('point.kml'));
-        });
-        it('polygon', function() {
-            expect(tokml(file('polygon.geojson'))).to.eql(output('polygon.kml'));
-        });
-        it('linestring', function() {
-            expect(tokml(file('linestring.geojson'))).to.eql(output('linestring.kml'));
-        });
-        it('multilinestring', function() {
-            expect(tokml(file('multilinestring.geojson'))).to.eql(output('multilinestring.kml'));
-        });
-        it('multipoint', function() {
-            expect(tokml(file('multipoint.geojson'))).to.eql(output('multipoint.kml'));
-        });
-        it('multipolygon', function() {
-            expect(tokml(file('multipolygon.geojson'))).to.eql(output('multipolygon.kml'));
-        });
-        it('geometrycollection', function() {
-            expect(tokml(file('geometrycollection.geojson'))).to.eql(output('geometrycollection.kml'));
-        });
+    function geq(t, name) {
+        t.equal(tokml(file(name + '.geojson')), output(name + '.kml'), name);
+    }
 
+    test('geometry', function(t) {
+        geq(t, 'polygon');
+        geq(t, 'linestring');
+        geq(t, 'multilinestring');
+        geq(t, 'multipoint');
+        geq(t, 'multipolygon');
+        geq(t, 'geometrycollection');
+        t.end();
     });
 
-    describe('quirks', function() {
-        it('cdata', function() {
-            expect(tokml(file('cdata.geojson'))).to.eql(output('cdata.kml'));
-        });
-
-        it('single feature', function() {
-            expect(tokml(file('singlefeature.geojson'))).to.eql(output('singlefeature.kml'));
-        });
-
-        it('single geometry', function() {
-            expect(tokml(file('singlegeometry.geojson'))).to.eql(output('singlegeometry.kml'));
-        });
-
-        it('unknown type', function() {
-
-            expect(tokml(file('unknown.geojson'))).to.eql(output('unknown.kml'));
-        });
-
-        it('null data', function() {
-            expect(tokml(file('nulldata.geojson'))).to.eql(output('nulldata.kml'));
-        });
-
-        it('unknown geometry', function() {
-            expect(tokml(file('unknowngeom.geojson'))).to.eql(output('unknowngeom.kml'));
-        });
-
-        it('no type', function() {
-            expect(tokml(file('notype.geojson'))).to.eql(output('notype.kml'));
-        });
-
-        it('non-string values', function() {
-            expect(tokml(file('number_property.geojson'))).to.eql(output('number_property.kml'));
-        });
+    test('quirks', function(t) {
+        geq(t, 'cdata');
+        geq(t, 'singlefeature');
+        geq(t, 'singlegeometry');
+        geq(t, 'unknown');
+        geq(t, 'nulldata');
+        geq(t, 'unknowngeom');
+        geq(t, 'notype');
+        geq(t, 'number_property');
+        t.end();
     });
 
-    describe('name & description', function() {
-        it('name and description', function() {
-            expect(tokml(file('name_desc.geojson'))).to.eql(output('name_desc.kml'));
-        });
-        it('document name & description', function() {
-            expect(tokml(file('document_name_desc.geojson'), {
-                documentName: 'Document Title',
-                documentDescription: 'Document Description',
-            })).to.eql(output('document_name_desc.kml'));
-        });
+    test('name & description', function(t) {
+        t.equal(tokml(file('name_desc.geojson')), output('name_desc.kml'));
+        t.equal(tokml(file('document_name_desc.geojson'), {
+            documentName: 'Document Title',
+            documentDescription: 'Document Description',
+        }), output('document_name_desc.kml'));
+        t.end();
     });
 
-    describe('simplestyle spec', function() {
-        it('basic marker', function() {
-            expect(tokml(file('simplestyle.geojson'), {
-                simplestyle: true
-            })).to.eql(output('simplestyle.kml'));
+    test('simplestyle spec', function(t) {
+        t.equal(tokml(file('simplestyle.geojson'), {
+            simplestyle: true
+        }), output('simplestyle.kml'));
+        t.end();
+    });
+    t.end();
+
+    test('fuzz', function(t) {
+        fuzzer.seed(0);
+        var inputs = glob.sync(__dirname + '/data/*.geojson').forEach(function(gj) {
+            var generator = fuzzer.mutate.object(JSON.parse(fs.readFileSync(gj)));
+            for (var i = 0; i < 100; i++) {
+                var gen = generator();
+                try {
+                    tokml(gen);
+                    t.pass();
+                } catch(e) {
+                    t.fail('failed ' + JSON.stringify(gen) + 'with ' + e + e.stack);
+                }
+            }
         });
+        t.end();
     });
 });
 
 function file(f) {
-    return JSON.parse(fs.readFileSync('test/data/' + f));
+    return JSON.parse(fs.readFileSync(__dirname + '/data/' + f));
 }
 
 function output(f) {
-    return fs.readFileSync('test/data/' + f, 'utf8');
+    return fs.readFileSync(__dirname + '/data/' + f, 'utf8');
 }
