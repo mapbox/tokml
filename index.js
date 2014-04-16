@@ -1,3 +1,7 @@
+var strxml = require('strxml'),
+    tag = strxml.tag,
+    encode = strxml.encode;
+
 module.exports = function tokml(geojson, options) {
 
     options = options || {
@@ -177,21 +181,4 @@ function pairs(_) {
     var o = [];
     for (var i in _) o.push([i, _[i]]);
     return o;
-}
-
-function attr(_) {
-    return _ ? (' ' + _.map(function(a) {
-        return a[0] + '="' + a[1] + '"';
-    }).join(' ')) : '';
-}
-
-function tag(el, contents, attributes) {
-    return '<' + el + attr(attributes) + '>' + contents + '</' + el + '>';
-}
-
-function encode(_) {
-    return (_ === null ? '' : _.toString()).replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
 }
