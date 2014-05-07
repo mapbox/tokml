@@ -29,6 +29,10 @@ test('tokml', function(t) {
         geq(t, 'unknowngeom');
         geq(t, 'notype');
         geq(t, 'number_property');
+        geq(t, 'polygon_norings');
+        geq(t, 'multipolygon_none');
+        geq(t, 'multipoint_none');
+        geq(t, 'multilinestring_none');
         t.end();
     });
 

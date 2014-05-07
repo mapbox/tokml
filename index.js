@@ -30,10 +30,12 @@ function feature(options) {
             styleReference = tag('styleUrl', '#' + iconHash(_.properties));
         }
         if (!_.properties || !geometry.valid(_.geometry)) return '';
+        var geometryString = geometry.any(_.geometry);
+        if (!geometryString) return '';
         return styleDefinition + tag('Placemark',
             name(_.properties, options) +
             description(_.properties, options) +
-            geometry.any(_.geometry) +
+            geometryString +
             extendeddata(_.properties) +
             styleReference);
     };
@@ -84,6 +86,7 @@ var geometry = {
         return tag('LineString', tag('coordinates', linearring(_.coordinates)));
     },
     Polygon: function(_) {
+        if (!_.coordinates.length) return '';
         var outer = _.coordinates[0],
             inner = _.coordinates.slice(1),
             outerRing = tag('outerBoundaryIs',
@@ -95,16 +98,19 @@ var geometry = {
         return tag('Polygon', outerRing + innerRings);
     },
     MultiPoint: function(_) {
+        if (!_.coordinates.length) return '';
         return tag('MultiGeometry', _.coordinates.map(function(c) {
             return geometry.Point({ coordinates: c });
         }).join(''));
     },
     MultiPolygon: function(_) {
+        if (!_.coordinates.length) return '';
         return tag('MultiGeometry', _.coordinates.map(function(c) {
             return geometry.Polygon({ coordinates: c });
         }).join(''));
     },
     MultiLineString: function(_) {
+        if (!_.coordinates.length) return '';
         return tag('MultiGeometry', _.coordinates.map(function(c) {
             return geometry.LineString({ coordinates: c });
         }).join(''));
