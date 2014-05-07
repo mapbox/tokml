@@ -1,5 +1,8 @@
-(function(e){if("function"==typeof bootstrap)bootstrap("tokml",e);else if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else if("undefined"!=typeof ses){if(!ses.ok())return;ses.makeTokml=e}else"undefined"!=typeof window?window.tokml=e():global.tokml=e()})(function(){var define,ses,bootstrap,module,exports;
-return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.tokml=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var strxml = require('strxml'),
+    tag = strxml.tag,
+    encode = strxml.encode;
+
 module.exports = function tokml(geojson, options) {
 
     options = options || {
@@ -27,10 +30,13 @@ function feature(options) {
             styleDefinition = iconstyle(_.properties);
             styleReference = tag('styleUrl', '#' + iconHash(_.properties));
         }
+        if (!_.properties || !geometry.valid(_.geometry)) return '';
+        var geometryString = geometry.any(_.geometry);
+        if (!geometryString) return '';
         return styleDefinition + tag('Placemark',
             name(_.properties, options) +
             description(_.properties, options) +
-            geometry.any(_.geometry) +
+            geometryString +
             extendeddata(_.properties) +
             styleReference);
     };
@@ -39,16 +45,17 @@ function feature(options) {
 function root(_, options) {
     if (!_.type) return '';
     switch (_.type) {
-        case 'FeatureCollection': return _.features.map(feature(options)).join('');
-        case 'Feature': return feature(options)(_);
+        case 'FeatureCollection':
+            if (!_.features) return '';
+            return _.features.map(feature(options)).join('');
+        case 'Feature':
+            return feature(options)(_);
         default:
-            if (_.type in geometry) {
-                return feature(options)({
-                    type: 'Feature',
-                    geometry: _,
-                    properties: {}
-                });
-            }
+            return feature(options)({
+                type: 'Feature',
+                geometry: _,
+                properties: {}
+            });
     }
     return '';
 }
@@ -80,6 +87,7 @@ var geometry = {
         return tag('LineString', tag('coordinates', linearring(_.coordinates)));
     },
     Polygon: function(_) {
+        if (!_.coordinates.length) return '';
         var outer = _.coordinates[0],
             inner = _.coordinates.slice(1),
             outerRing = tag('outerBoundaryIs',
@@ -91,16 +99,19 @@ var geometry = {
         return tag('Polygon', outerRing + innerRings);
     },
     MultiPoint: function(_) {
+        if (!_.coordinates.length) return '';
         return tag('MultiGeometry', _.coordinates.map(function(c) {
             return geometry.Point({ coordinates: c });
         }).join(''));
     },
     MultiPolygon: function(_) {
+        if (!_.coordinates.length) return '';
         return tag('MultiGeometry', _.coordinates.map(function(c) {
             return geometry.Polygon({ coordinates: c });
         }).join(''));
     },
     MultiLineString: function(_) {
+        if (!_.coordinates.length) return '';
         return tag('MultiGeometry', _.coordinates.map(function(c) {
             return geometry.LineString({ coordinates: c });
         }).join(''));
@@ -108,6 +119,10 @@ var geometry = {
     GeometryCollection: function(_) {
         return tag('MultiGeometry',
             _.geometries.map(geometry.any).join(''));
+    },
+    valid: function(_) {
+        return _ && _.type && (_.coordinates ||
+            _.type === 'GeometryCollection' && _.geometries.every(geometry.valid));
     },
     any: function(_) {
         if (geometry[_.type]) {
@@ -128,7 +143,7 @@ function extendeddata(_) {
 }
 
 function data(_) {
-    return tag('Data', encode(_[1]), [['name', encode(_[0])]]);
+    return tag('Data', tag('value', encode(_[1])), [['name', encode(_[0])]]);
 }
 
 // ## Icons
@@ -175,18 +190,47 @@ function pairs(_) {
     return o;
 }
 
+},{"strxml":2}],2:[function(require,module,exports){
+module.exports.attr = attr;
+module.exports.tagClose = tagClose;
+module.exports.tag = tag;
+module.exports.encode = encode;
+
+/**
+ * @param {array} _ an array of attributes
+ * @returns {string}
+ */
 function attr(_) {
-    return _ ? (' ' + _.map(function(a) {
+    return (_ && _.length) ? (' ' + _.map(function(a) {
         return a[0] + '="' + a[1] + '"';
     }).join(' ')) : '';
 }
 
+/**
+ * @param {string} el element name
+ * @param {array} attributes array of pairs
+ * @returns {string}
+ */
+function tagClose(el, attributes) {
+    return '<' + el + attr(attributes) + '/>';
+}
+
+/**
+ * @param {string} el element name
+ * @param {string} contents innerXML
+ * @param {array} attributes array of pairs
+ * @returns {string}
+ */
 function tag(el, contents, attributes) {
     return '<' + el + attr(attributes) + '>' + contents + '</' + el + '>';
 }
 
+/**
+ * @param {string} _ a string of attribute
+ * @returns {string}
+ */
 function encode(_) {
-    return (_ || '').replace(/&/g, '&amp;')
+    return (_ === null ? '' : _.toString()).replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
@@ -195,4 +239,3 @@ function encode(_) {
 },{}]},{},[1])
 (1)
 });
-;
