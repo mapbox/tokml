@@ -1,3 +1,8 @@
+## 0.2.3
+
+* Tolerates empty Polygon coordinates
+* Tolerates empty geometry collections
+
 ## 0.2.2
 
 * Fix formatting of `ExtendedData` sections
