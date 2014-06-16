@@ -25,7 +25,6 @@
   "devDependencies": {
     "glob": "~3.2.6",
     "corslite": "0.0.5",
-    "filesaver.js": "~2013.1.23",
     "tap": "~0.4.8",
     "fuzzer": "0.0.0",
     "coveralls": "~2.10.0",
