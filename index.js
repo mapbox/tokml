@@ -56,7 +56,6 @@ function root(_, options) {
                 properties: {}
             });
     }
-    return '';
 }
 
 function documentName(options) {

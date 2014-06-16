@@ -27,6 +27,7 @@ test('tokml', function(t) {
         geq(t, 'unknown');
         geq(t, 'nulldata');
         geq(t, 'unknowngeom');
+        geq(t, 'unknowntype');
         geq(t, 'notype');
         geq(t, 'number_property');
         geq(t, 'polygon_norings');
