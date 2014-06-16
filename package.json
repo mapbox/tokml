@@ -4,7 +4,8 @@
   "description": "convert geojson to kml",
   "main": "index.js",
   "scripts": {
-    "test": "tap test/*.js"
+    "test": "tap test/*.js",
+    "cov": "istanbul cover test/kml.test.js && coveralls < ./coverage/lcov.info"
   },
   "repository": {
     "type": "git",
@@ -26,7 +27,9 @@
     "corslite": "0.0.5",
     "filesaver.js": "~2013.1.23",
     "tap": "~0.4.8",
-    "fuzzer": "0.0.0"
+    "fuzzer": "0.0.0",
+    "coveralls": "~2.10.0",
+    "istanbul": "~0.2.11"
   },
   "dependencies": {
     "minimist": "0.0.5",
