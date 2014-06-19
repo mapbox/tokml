@@ -25,9 +25,14 @@ function feature(options) {
     return function(_) {
         var styleDefinition = '',
             styleReference = '';
-        if (options.simplestyle && hasStyle(_.properties)) {
-            styleDefinition = iconstyle(_.properties);
-            styleReference = tag('styleUrl', '#' + iconHash(_.properties));
+        if (options.simplestyle) {
+            if (hasMarkerStyle(_.properties)) {
+                styleDefinition = iconStyle(_.properties);
+                styleReference = tag('styleUrl', '#' + iconHash(_.properties));
+            } else if (hasPolyStyle(_.properties)) {
+                styleDefinition = shapeStyle(_.properties);
+                styleReference = tag('styleUrl', '#' + iconHash(_.properties));
+            }
         }
         if (!_.properties || !geometry.valid(_.geometry)) return '';
         var geometryString = geometry.any(_.geometry);
@@ -145,7 +150,7 @@ function data(_) {
 }
 
 // ## Icons
-function iconstyle(_) {
+function iconStyle(_) {
     return tag('Style',
         tag('IconStyle',
             tag('Icon',
@@ -171,14 +176,37 @@ function iconSize(_) {
     ]);
 }
 
-function hasStyle(_) {
+function hasMarkerStyle(_) {
     return !!(_['marker-size'] || _['marker-symbol'] || _['marker-color']);
+}
+
+function hasPolyStyle(_) {
+    for (var key in _) {
+        if ({
+            "stroke": true,
+            "stroke-opacity": true,
+            "stroke-width": true,
+            "fill": true,
+            "fill-opacity": true
+        }[key]) return true;
+    }
 }
 
 function iconHash(_) {
     return (_['marker-symbol'] || '') +
         (_['marker-color'] || '').replace('#', '') +
         (_['marker-size'] || '');
+}
+
+function shapeStyle(_) {
+    var lineStyle = tag('LineStyle', '', [
+        ['color', _.stroke || '555555'],
+        ['width', _['stroke-width'] === undefined ? 2 : _['stroke-width']]
+    ]);
+    var polyStyle = tag('PolyStyle', '', [
+        ['color', _.fill || '555555']
+    ]);
+    return tag('Style', lineStyle + polyStyle);
 }
 
 // ## Helpers
