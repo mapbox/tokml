@@ -31,9 +31,8 @@
     "istanbul": "~0.2.11"
   },
   "dependencies": {
-    "minimist": "0.0.5",
-    "concat-stream": "~1.0.1",
-    "sharkdown": "0.0.1",
-    "strxml": "0.0.0"
+    "minimist": "0.1.0",
+    "strxml": "0.0.0",
+    "rw": "0.0.4"
   }
 }

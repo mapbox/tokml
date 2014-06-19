@@ -1,21 +1,15 @@
 #!/usr/bin/env node
 
 var tokml = require('./'),
-    sharkdown = require('sharkdown'),
-    concat = require('concat-stream'),
-    fs = require('fs'),
+    rw = require('rw'),
     argv = require('minimist')(process.argv.slice(2), {
         boolean: 'simplestyle'
-    }),
-    simplestyle = !!argv.simplestyle;
+    });
 
 if (process.stdin.isTTY && !argv._[0]) {
-    process.stdout.write(sharkdown(fs.readFileSync(__dirname + '/HELP.md')));
+    process.stdout.write(rw.readSync(__dirname + '/HELP.md'));
     process.exit(1);
 }
 
-(argv._.length ? fs.createReadStream(argv._[0]) : process.stdin).pipe(concat(convert));
-
-function convert(data) {
-    process.stdout.write(tokml(JSON.parse(data), argv));
-}
+var input = rw.readSync(argv._.length ? argv._[0] : '/dev/stdin', 'utf8');
+process.stdout.write(tokml(JSON.parse(input), argv));
