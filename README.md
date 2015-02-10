@@ -64,7 +64,7 @@ you define a mapping from the GeoJSON style to KML's.
 have a comparable field, but a custom property can be mapped
 
 * `timestamp`: the name of the property in each GeoJSON Feature that contains 
-  a timestamp in XML Schmea Time (yyyy-mm-ddThh:mm:sszzzzzz)  
+  a timestamp in XML Schema Time (yyyy-mm-ddThh:mm:sszzzzzz)  
 
 **Document name and description**: KML supports `name` and `description` properties
 for the full document.
