@@ -46,6 +46,15 @@ test('tokml', function(t) {
         t.end();
     });
 
+    test('timestamp', function(t) {
+        t.equal(tokml(file('timestamp.geojson'), {
+            name: 'name',
+            description: 'description',
+            timestamp: 'moment'
+        }), output('timestamp.kml'));
+       t.end();
+    });
+
     test('simplestyle spec', function(t) {
         t.equal(tokml(file('simplestyle.geojson'), {
             simplestyle: true
