@@ -60,10 +60,10 @@ you define a mapping from the GeoJSON style to KML's.
 * `description`: the name of the property in each GeoJSON Feature that contains
   the feature's description
 
-**Timestamp:** KML can associate features with a moment in time via the <TimeStamp> tag.  GeoJSON doesn't
+**Timestamp:** KML can associate features with a moment in time via the `TimeStamp` tag.  GeoJSON doesn't
 have a comparable field, but a custom property can be mapped
 
-* `timestamp`: the name of the propery in each GeoJSON Feature that contains 
+* `timestamp`: the name of the property in each GeoJSON Feature that contains 
   a timestamp in XML Schmea Time (yyyy-mm-ddThh:mm:sszzzzzz)  
 
 **Document name and description**: KML supports `name` and `description` properties
