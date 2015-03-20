@@ -1,1 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><Point><coordinates>102,0.5</coordinates></Point><ExtendedData><Data name="prop0"><value>value0</value></Data></ExtendedData></Placemark></Document></kml>
+<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><ExtendedData><Data name="prop0"><value>value0</value></Data></ExtendedData><Point><coordinates>102,0.5</coordinates></Point></Placemark></Document></kml>
