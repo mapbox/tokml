@@ -1,6 +1,6 @@
 {
   "name": "tokml",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "convert geojson to kml",
   "main": "index.js",
   "scripts": {
