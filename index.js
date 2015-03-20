@@ -35,8 +35,8 @@ function feature(options) {
         return styleDefinition + tag('Placemark',
             name(_.properties, options) +
             description(_.properties, options) +
-            geometryString +
             extendeddata(_.properties) +
+            geometryString +
             styleReference);
     };
 }

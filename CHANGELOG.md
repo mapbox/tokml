@@ -1,3 +1,7 @@
+## 0.2.4
+
+* Fixes order of Geometry and ExtendedData tags in Placemarks
+
 ## 0.2.3
 
 * Tolerates empty Polygon coordinates

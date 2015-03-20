@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "tap test/*.js",
+    "build": "browserify -s tokml index.js > tokml.js",
     "cov": "istanbul cover test/kml.test.js && coveralls < ./coverage/lcov.info"
   },
   "repository": {
