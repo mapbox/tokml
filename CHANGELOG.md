@@ -1,4 +1,4 @@
-## 0.2.4
+## 0.2.5
 
 * Fixes order of Geometry and ExtendedData tags in Placemarks
 
