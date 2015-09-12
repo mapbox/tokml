@@ -7,6 +7,8 @@ usage:
 
     --simplestyle
       enable simplestyle icon translation
+    --basicstyle
+      enable basic feature styles
     --name
       property for <name>
     --description
