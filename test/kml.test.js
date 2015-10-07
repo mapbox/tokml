@@ -67,6 +67,13 @@ test('tokml', function(t) {
         tt.end();
     });
 
+    test('basicstyle', function(tt) {
+        geq(tt, 'basicstyle', {
+            basicstyle: true
+        });
+        tt.end();
+    });
+
     test('fuzz', function(tt) {
         fuzzer.seed(0);
         glob.sync(__dirname + '/data/*.geojson').forEach(function(gj) {

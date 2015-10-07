@@ -10,6 +10,7 @@ module.exports = function tokml(geojson, options) {
         name: 'name',
         description: 'description',
         simplestyle: false,
+        basicstyle: false,
         timestamp: 'timestamp'
     };
 
@@ -18,6 +19,7 @@ module.exports = function tokml(geojson, options) {
             tag('Document',
                 documentName(options) +
                 documentDescription(options) +
+                basicStyles(options) +
                 root(geojson, options)
                ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
 };
@@ -29,6 +31,9 @@ function feature(options) {
         if (options.simplestyle && hasStyle(_.properties)) {
             styleDefinition = iconstyle(_.properties);
             styleReference = tag('styleUrl', '#' + iconHash(_.properties));
+        }
+        if (options.basicstyle) {
+            styleReference = tag('styleUrl', '#' + basicStyle[_.geometry.type]);
         }
         if (!_.properties || !geometry.valid(_.geometry)) return '';
         var geometryString = geometry.any(_.geometry);
@@ -66,6 +71,22 @@ function documentName(options) {
 
 function documentDescription(options) {
     return (options.documentDescription !== undefined) ? tag('description', options.documentDescription) : '';
+}
+
+function basicStyles(options) {
+    var icon = tag('Style',
+            tag('IconStyle', tag('Icon', 'http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png')), [['id', 'icon']]),
+        line = tag('Style',
+            tag('LineStyle',
+                tag('color', 'ffff0000') +
+                tag('width', 3)), [['id', 'line']]),
+        poly = tag('Style',
+            tag('LineStyle',
+                tag('color', 'ff0000ff') +
+                tag('width', 3)) +
+            tag('PolyStyle',
+                tag('color', '7f00ffff')), [['id', 'poly']]);
+    return (options.basicstyle) ? icon + line + poly : '';
 }
 
 function name(_, options) {
@@ -186,6 +207,16 @@ function iconHash(_) {
         (_['marker-color'] || '').replace('#', '') +
         (_['marker-size'] || '');
 }
+
+// ## Basic Styles
+var basicStyle = {
+    Point: 'icon',
+    LineString: 'line',
+    Polygon: 'poly',
+    MultiPoint: 'icon',
+    MultiPolygon: 'poly',
+    MultiLineString: 'line'
+};
 
 // ## Helpers
 function pairs(_) {
