@@ -2,73 +2,85 @@ var test = require('tap').test,
     fs = require('fs'),
     glob = require('glob'),
     fuzzer = require('fuzzer'),
+    path = require('path'),
     tokml = require('../');
 
 test('tokml', function(t) {
 
-    function geq(t, name) {
-        t.equal(tokml(file(name + '.geojson')), output(name + '.kml'), name);
+    function geq(t, name, options) {
+        var expected = tokml(file(name + '.geojson'), options);
+        if (process.env.UPDATE) {
+            fs.writeFileSync(path.join(__dirname, '/data/', name + '.kml'), expected);
+        }
+        t.equal(expected, output(name + '.kml'), name);
     }
 
-    test('geometry', function(t) {
-        geq(t, 'polygon');
-        geq(t, 'linestring');
-        geq(t, 'multilinestring');
-        geq(t, 'multipoint');
-        geq(t, 'multipolygon');
-        geq(t, 'geometrycollection');
-        t.end();
+    t.test('geometry', function(tt) {
+        geq(tt, 'polygon');
+        geq(tt, 'linestring');
+        geq(tt, 'multilinestring');
+        geq(tt, 'multipoint');
+        geq(tt, 'multipolygon');
+        geq(tt, 'geometrycollection');
+        tt.end();
     });
 
-    test('quirks', function(t) {
-        geq(t, 'cdata');
-        geq(t, 'singlefeature');
-        geq(t, 'singlegeometry');
-        geq(t, 'unknown');
-        geq(t, 'nulldata');
-        geq(t, 'unknowngeom');
-        geq(t, 'unknowntype');
-        geq(t, 'notype');
-        geq(t, 'number_property');
-        geq(t, 'polygon_norings');
-        geq(t, 'multipolygon_none');
-        geq(t, 'multipoint_none');
-        geq(t, 'multilinestring_none');
-        t.end();
+    t.test('quirks', function(tt) {
+        geq(tt, 'cdata');
+        geq(tt, 'singlefeature');
+        geq(tt, 'singlegeometry');
+        geq(tt, 'unknown');
+        geq(tt, 'nulldata');
+        geq(tt, 'unknowngeom');
+        geq(tt, 'unknowntype');
+        geq(tt, 'notype');
+        geq(tt, 'number_property');
+        geq(tt, 'polygon_norings');
+        geq(tt, 'multipolygon_none');
+        geq(tt, 'multipoint_none');
+        geq(tt, 'multilinestring_none');
+        tt.end();
     });
 
-    test('name & description', function(t) {
-        t.equal(tokml(file('name_desc.geojson')), output('name_desc.kml'));
-        t.equal(tokml(file('document_name_desc.geojson'), {
+    test('name & description', function(tt) {
+        geq(tt, 'name_desc');
+        geq(tt, 'document_name_desc', {
             documentName: 'Document Title',
-            documentDescription: 'Document Description',
-        }), output('document_name_desc.kml'));
-        t.end();
+            documentDescription: 'Document Description'
+        });
+        tt.end();
     });
 
-    test('simplestyle spec', function(t) {
-        t.equal(tokml(file('simplestyle.geojson'), {
+    test('timestamp', function(tt) {
+        geq(tt, 'timestamp', {
+            name: 'name',
+            description: 'description',
+            timestamp: 'moment'
+        });
+        tt.end();
+    });
+
+    test('simplestyle spec', function(tt) {
+        geq(tt, 'simplestyle', {
             simplestyle: true
-        }), output('simplestyle.kml'));
-        t.end();
+        });
+        tt.end();
     });
-    t.end();
 
-    test('fuzz', function(t) {
+    test('fuzz', function(tt) {
         fuzzer.seed(0);
-        var inputs = glob.sync(__dirname + '/data/*.geojson').forEach(function(gj) {
+        glob.sync(__dirname + '/data/*.geojson').forEach(function(gj) {
             var generator = fuzzer.mutate.object(JSON.parse(fs.readFileSync(gj)));
-            for (var i = 0; i < 100; i++) {
+            for (var i = 0; i < 10; i++) {
                 var gen = generator();
                 try {
                     tokml(gen);
-                    t.pass();
                 } catch(e) {
-                    t.fail('failed ' + JSON.stringify(gen) + 'with ' + e + e.stack);
+                    tt.fail('failed ' + JSON.stringify(gen) + 'with ' + e + e.stack);
                 }
             }
         });
-        t.end();
+        tt.end();
     });
 });
 

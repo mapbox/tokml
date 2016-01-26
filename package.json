@@ -1,10 +1,11 @@
 {
   "name": "tokml",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "convert geojson to kml",
   "main": "index.js",
   "scripts": {
     "test": "tap test/*.js",
+    "build": "browserify -s tokml index.js > tokml.js",
     "cov": "istanbul cover test/kml.test.js && coveralls < ./coverage/lcov.info"
   },
   "repository": {

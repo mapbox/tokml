@@ -1,3 +1,12 @@
+## 0.3.0
+
+* Add support for encoding the KML TimeStamp tag from a field in a GeoJSON
+  properties object
+
+## 0.2.5
+
+* Fixes order of Geometry and ExtendedData tags in Placemarks
+
 ## 0.2.3
 
 * Tolerates empty Polygon coordinates

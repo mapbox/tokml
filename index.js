@@ -9,7 +9,8 @@ module.exports = function tokml(geojson, options) {
         documentDescription: undefined,
         name: 'name',
         description: 'description',
-        simplestyle: false
+        simplestyle: false,
+        timestamp: 'timestamp'
     };
 
     return '<?xml version="1.0" encoding="UTF-8"?>' +
@@ -40,8 +41,9 @@ function feature(options) {
         return styleDefinition + tag('Placemark',
             name(_.properties, options) +
             description(_.properties, options) +
-            geometryString +
             extendeddata(_.properties) +
+            timestamp(_.properties, options) +
+            geometryString +
             styleReference);
     };
 }
@@ -77,6 +79,10 @@ function name(_, options) {
 
 function description(_, options) {
     return _[options.description] ? tag('description', encode(_[options.description])) : '';
+}
+
+function timestamp(_, options) {
+    return _[options.timestamp] ? tag('TimeStamp', tag('when', encode(_[options.timestamp]))) : '';
 }
 
 // ## Geometry Types
