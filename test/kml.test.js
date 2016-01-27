@@ -40,6 +40,7 @@ test('tokml', function(t) {
         geq(tt, 'multipoint');
         geq(tt, 'multipolygon');
         geq(tt, 'geometrycollection');
+        geq(tt, 'geometrycollection_nogeometries');
         tt.end();
     });
 
@@ -144,7 +145,7 @@ test('tokml', function(t) {
                 try {
                     tokml(gen);
                 } catch(e) {
-                    tt.fail('failed ' + JSON.stringify(gen) + 'with ' + e + e.stack);
+                    tt.fail('failed at fuzzed version of ' + gj + ': ' + JSON.stringify(gen) + 'with ' + e + e.stack);
                 }
             }
         });
