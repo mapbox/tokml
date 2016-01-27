@@ -270,6 +270,33 @@ function lineStyle(_, styleHash) {
     return tag('Style', lineStyle, [['id', styleHash]]);
 }
 
+function hexToKmlColor(hexColor, opacity) {
+    if (typeof hexColor !== 'string') return '';
+    
+    hexColor = hexColor.replace('#', '').toLowerCase();
+    
+    if (hexColor.length === 3) {
+        hexColor = hexColor[0] + hexColor[0] + 
+        hexColor[1] + hexColor[1] + 
+        hexColor[2] + hexColor[2];
+    } else if (hexColor.length !== 6) {
+        return '';
+    }
+    
+    var r = hexColor[0] + hexColor[1];
+    var g = hexColor[2] + hexColor[3];
+    var b = hexColor[4] + hexColor[5];
+    
+    var o = 'ff';
+    if (typeof opacity === 'number' && opacity >= 0.0 && opacity <= 1.0) {
+        o = (opacity * 255).toString(16);
+        if (o.indexOf('.') > -1) o = o.substr(0, o.indexOf('.'));
+        if (o.length < 2) o = '0' + o;
+    }
+    
+    return o + b + g + r;
+}
+
 // ## Helpers
 function pairs(_) {
     var o = [];
