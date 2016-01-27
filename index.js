@@ -22,22 +22,33 @@ module.exports = function tokml(geojson, options) {
                ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
 };
 
-function feature(options) {
+function feature(options, styleHashesArray) {
     return function(_) {
-        var styleDefinition = '',
-            styleReference = '';
-        if (options.simplestyle) {
-            if (hasMarkerStyle(_.properties)) {
-                styleDefinition = iconStyle(_.properties);
-                styleReference = tag('styleUrl', '#' + iconHash(_.properties));
-            } else if (hasPolyStyle(_.properties)) {
-                styleDefinition = shapeStyle(_.properties);
-                styleReference = tag('styleUrl', '#' + iconHash(_.properties));
-            }
-        }
         if (!_.properties || !geometry.valid(_.geometry)) return '';
         var geometryString = geometry.any(_.geometry);
         if (!geometryString) return '';
+        
+        var styleDefinition = '',
+            styleReference = '';
+        if (options.simplestyle) {
+            var styleHash = hashStyle(_.properties);
+            if (styleHash) {
+                if (hasMarkerStyle(_.properties)) {
+                    if (styleHashesArray.indexOf(styleHash) === -1) {
+                        styleDefinition = markerStyle(_.properties, styleHash);
+                        styleHashesArray.push(styleHash);
+                    }
+                    styleReference = tag('styleUrl', '#' + styleHash);
+                } else if (hasPolygonStyle(_.properties)) {
+                    if (styleHashesArray.indexOf(styleHash) === -1) {
+                        styleDefinition = polygonStyle(_.properties, styleHash);
+                        styleHashesArray.push(styleHash);
+                    }
+                    styleReference = tag('styleUrl', '#' + styleHash);
+                }
+            }
+        }
+        
         return styleDefinition + tag('Placemark',
             name(_.properties, options) +
             description(_.properties, options) +
@@ -50,14 +61,16 @@ function feature(options) {
 
 function root(_, options) {
     if (!_.type) return '';
+    var styleHashesArray = [];
+            
     switch (_.type) {
         case 'FeatureCollection':
             if (!_.features) return '';
-            return _.features.map(feature(options)).join('');
+            return _.features.map(feature(options, styleHashesArray)).join('');
         case 'Feature':
-            return feature(options)(_);
+            return feature(options, styleHashesArray)(_);
         default:
-            return feature(options)({
+            return feature(options, styleHashesArray)({
                 type: 'Feature',
                 geometry: _,
                 properties: {}
@@ -155,13 +168,13 @@ function data(_) {
     return tag('Data', tag('value', encode(_[1])), [['name', encode(_[0])]]);
 }
 
-// ## Icons
-function iconStyle(_) {
+// ## Style
+function markerStyle(_, styleHash) {
     return tag('Style',
         tag('IconStyle',
             tag('Icon',
                 tag('href', iconUrl(_)))) +
-        iconSize(_), [['id', iconHash(_)]]);
+        iconSize(_), [['id', styleHash]]);
 }
 
 function iconUrl(_) {
@@ -186,7 +199,7 @@ function hasMarkerStyle(_) {
     return !!(_['marker-size'] || _['marker-symbol'] || _['marker-color']);
 }
 
-function hasPolyStyle(_) {
+function hasPolygonStyle(_) {
     for (var key in _) {
         if ({
             "stroke": true,
@@ -198,13 +211,18 @@ function hasPolyStyle(_) {
     }
 }
 
-function iconHash(_) {
+function hashStyle(_) {
     return (_['marker-symbol'] || '') +
         (_['marker-color'] || '').replace('#', '') +
-        (_['marker-size'] || '');
+        (_['marker-size'] || '') +
+        (_['stroke'] || '').replace('#', '') +
+        (_['stroke-width'] || '').replace('.', '') +
+        (_['stroke-opacity'] || '').replace('.', '') +
+        (_['fill'] || '').replace('#', '') +
+        (_['fill-opacity'] || '').replace('.', '');
 }
 
-function shapeStyle(_) {
+function polygonStyle(_, styleHash) {
     var lineStyle = tag('LineStyle', '', [
         ['color', _.stroke || '555555'],
         ['width', _['stroke-width'] === undefined ? 2 : _['stroke-width']]
@@ -212,7 +230,7 @@ function shapeStyle(_) {
     var polyStyle = tag('PolyStyle', '', [
         ['color', _.fill || '555555']
     ]);
-    return tag('Style', lineStyle + polyStyle);
+    return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
 }
 
 // ## Helpers
