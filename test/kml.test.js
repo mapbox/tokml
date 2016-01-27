@@ -98,6 +98,8 @@ test('tokml', function(t) {
         geq(tt, 'simplestyle_polygon', options);
         geq(tt, 'simplestyle_polygon_defaults', options);
         geq(tt, 'simplestyle_multipolygon', options);
+        geq(tt, 'simplestyle_polygon_multiple_same', options);
+        geq(tt, 'simplestyle_polygon_multiple_different', options);
         
         tt.end();
     });

@@ -39,15 +39,10 @@ function feature(options, styleHashesArray) {
                         styleHashesArray.push(styleHash);
                     }
                     styleReference = tag('styleUrl', '#' + styleHash);
-                } else if (geometry.isPolygon(_.geometry) && hasPolygonStyle(_.properties)) {
+                } else if ((geometry.isPolygon(_.geometry) || geometry.isLine(_.geometry)) && 
+                    hasPolygonStyle(_.properties)) {
                     if (styleHashesArray.indexOf(styleHash) === -1) {
-                        styleDefinition = polygonStyle(_.properties, styleHash);
-                        styleHashesArray.push(styleHash);
-                    }
-                    styleReference = tag('styleUrl', '#' + styleHash);
-                } else if (geometry.isLine(_.geometry) && hasLineStyle(_.properties)) {
-                    if (styleHashesArray.indexOf(styleHash) === -1) {
-                        styleDefinition = lineStyle(_.properties, styleHash);
+                        styleDefinition = polygonAndLineStyle(_.properties, styleHash);
                         styleHashesArray.push(styleHash);
                     }
                     styleReference = tag('styleUrl', '#' + styleHash);
@@ -230,16 +225,6 @@ function hasPolygonStyle(_) {
     }
 }
 
-function hasLineStyle(_) {
-    for (var key in _) {
-        if ({
-            "stroke": true,
-            "stroke-opacity": true,
-            "stroke-width": true
-        }[key]) return true;
-    }
-}
-
 function hashStyle(_) {
     var hash = '';
     
@@ -255,23 +240,21 @@ function hashStyle(_) {
     return hash;
 }
 
-function polygonStyle(_, styleHash) {
+function polygonAndLineStyle(_, styleHash) {
     var lineStyle = tag('LineStyle', [
         tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
         tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
     ]);
-    var polyStyle = tag('PolyStyle', [
-        tag('color', hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
-    ]);
+    
+    var polyStyle = '';
+    
+    if (_['fill'] || _['fill-opacity']) {
+        polyStyle = tag('PolyStyle', [
+            tag('color', hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
+        ]);
+    }
+    
     return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
-}
-
-function lineStyle(_, styleHash) {
-    var lineStyle = tag('LineStyle', [
-        tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
-        tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
-    ]);
-    return tag('Style', lineStyle, [['id', styleHash]]);
 }
 
 function hexToKmlColor(hexColor, opacity) {
