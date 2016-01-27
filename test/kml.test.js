@@ -75,6 +75,12 @@ test('tokml', function(t) {
         
         geq(tt, 'simplestyle_linestring', options);
         geq(tt, 'simplestyle_linestring_defaults', options);
+        geq(tt, 'simplestyle_multilinestring', options);
+        
+        geq(tt, 'simplestyle_polygon', options);
+        geq(tt, 'simplestyle_polygon_defaults', options);
+        geq(tt, 'simplestyle_multipolygon', options);
+        
         tt.end();
     });
 
