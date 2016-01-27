@@ -14,6 +14,24 @@ test('tokml', function(t) {
         }
         t.equal(expected, output(name + '.kml'), name);
     }
+    
+    function testColor(t, inputColor, inputOpacity, expected) {
+        var featureCollection = file('lineString.geojson');
+        var props = featureCollection.features[0].properties;
+        if (inputColor !== null) props['stroke'] = inputColor;
+        if (inputOpacity !== null) props['stroke-opacity'] = inputOpacity;
+        
+        var kml = tokml(featureCollection, { simplestyle: true });
+        
+        if (inputColor) {
+            var colorValue = kml.substr(kml.indexOf('<color>') + 7, 8);
+            
+            t.equal(colorValue, expected, 
+                'color ' + (inputColor || '<undefined>') + ' with opacity ' + (inputOpacity || '<undefined>'));
+        } else {
+            t.equal(kml.indexOf('<color>'), -1, 'color ' +  inputColor + ' results in empty string');
+        }
+    }
 
     t.test('geometry', function(tt) {
         geq(tt, 'polygon');
@@ -82,6 +100,35 @@ test('tokml', function(t) {
         geq(tt, 'simplestyle_multipolygon', options);
         
         tt.end();
+    });
+    
+    test('simplestyle hex to kml color conversion', function(tt) {
+       testColor(tt, '#ff5500', 1, 'ff0055ff');
+       testColor(tt, '#0000ff', 1, 'ffff0000');
+       testColor(tt, '#00ff00', 1, 'ff00ff00');
+       testColor(tt, '#000000', 1, 'ff000000');
+       testColor(tt, '#ffffff', 1, 'ffffffff');
+       
+       testColor(tt, '#ff5500', 0.5, '7f0055ff');
+       testColor(tt, '#ff5500', 0, '000055ff');
+       testColor(tt, '#ff5500', 0.01, '020055ff');
+       testColor(tt, '#ff5500', 0.02, '050055ff');
+       testColor(tt, '#ff5500', 0.99, 'fc0055ff');
+       testColor(tt, '#ff5500', 1, 'ff0055ff');
+       
+       testColor(tt, '#f50', null, 'ff0055ff');
+       testColor(tt, 'f50', null, 'ff0055ff');
+       
+       testColor(tt, null, null, 'ff0055ff');
+       testColor(tt, '', null, 'ff0055ff');
+       
+       testColor(tt, 'aa', null, 'ff555555');
+       
+       // TODO: this still fails
+       //testColor(tt, 'sqdgfd', null, 'ff555555');
+       //testColor(tt, 'ggg', null, 'ff555555');
+       
+       tt.end(); 
     });
 
     test('fuzz', function(tt) {

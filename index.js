@@ -241,30 +241,34 @@ function hasLineStyle(_) {
 }
 
 function hashStyle(_) {
-    return (_['marker-symbol'] || '') +
-        (_['marker-color'] || '').replace('#', '') +
-        (_['marker-size'] || '') +
-        (_['stroke'] || '').replace('#', '') +
-        (_['stroke-width'] ? _['stroke-width'].toString() : '').replace('.', '') +
-        (_['stroke-opacity'] ? _['stroke-opacity'].toString() : '').replace('.', '') +
-        (_['fill'] || '').replace('#', '') +
-        (_['fill-opacity'] ? _['fill-opacity'].toString() : '').replace('.', '');
+    var hash = '';
+    
+    if (_['marker-symbol']) hash = hash + 'ms' + _['marker-symbol'];
+    if (_['marker-color']) hash = hash + 'mc' + _['marker-color'].replace('#', '');
+    if (_['marker-size']) hash = hash + 'ms' + _['marker-size'];
+    if (_['stroke']) hash = hash + 's' + _['stroke'].replace('#', '');
+    if (_['stroke-width']) hash = hash + 'sw' + _['stroke-width'].toString().replace('.', '');
+    if (_['stroke-opacity']) hash = hash + 'mo' + _['stroke-opacity'].toString().replace('.', '');
+    if (_['fill']) hash = hash + 'f' + _['fill'].replace('#', '');
+    if (_['fill-opacity']) hash = hash + 'fo' + _['fill-opacity'].toString().replace('.', '');
+    
+    return hash;
 }
 
 function polygonStyle(_, styleHash) {
     var lineStyle = tag('LineStyle', [
-        tag('color', _.stroke || '555555') +
+        tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
         tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
     ]);
     var polyStyle = tag('PolyStyle', [
-        tag('color', _.fill || '555555')
+        tag('color', hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
     ]);
     return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
 }
 
 function lineStyle(_, styleHash) {
     var lineStyle = tag('LineStyle', [
-        tag('color', _.stroke || '555555') +
+        tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
         tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
     ]);
     return tag('Style', lineStyle, [['id', styleHash]]);
