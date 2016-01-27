@@ -40,14 +40,14 @@ function feature(options, styleHashesArray) {
                     }
                     styleReference = tag('styleUrl', '#' + styleHash);
                 } else if ((geometry.isPolygon(_.geometry) || geometry.isLine(_.geometry)) && 
-                    hasPolygonStyle(_.properties)) {
+                    hasPolygonAndLineStyle(_.properties)) {
                     if (styleHashesArray.indexOf(styleHash) === -1) {
                         styleDefinition = polygonAndLineStyle(_.properties, styleHash);
                         styleHashesArray.push(styleHash);
                     }
                     styleReference = tag('styleUrl', '#' + styleHash);
                 }
-                // TODO: style for MultiGeometry is not supported!
+                // Note that style of GeometryCollection / MultiGeometry is not supported
             }
         }
         
@@ -182,7 +182,11 @@ function data(_) {
     return tag('Data', tag('value', encode(_[1])), [['name', encode(_[0])]]);
 }
 
-// ## Style
+// ## Marker style
+function hasMarkerStyle(_) {
+    return !!(_['marker-size'] || _['marker-symbol'] || _['marker-color']);
+}
+
 function markerStyle(_, styleHash) {
     return tag('Style',
         tag('IconStyle',
@@ -209,11 +213,8 @@ function iconSize(_) {
     ]);
 }
 
-function hasMarkerStyle(_) {
-    return !!(_['marker-size'] || _['marker-symbol'] || _['marker-color']);
-}
-
-function hasPolygonStyle(_) {
+// ## Polygon and Line style
+function hasPolygonAndLineStyle(_) {
     for (var key in _) {
         if ({
             "stroke": true,
@@ -223,21 +224,6 @@ function hasPolygonStyle(_) {
             "fill-opacity": true
         }[key]) return true;
     }
-}
-
-function hashStyle(_) {
-    var hash = '';
-    
-    if (_['marker-symbol']) hash = hash + 'ms' + _['marker-symbol'];
-    if (_['marker-color']) hash = hash + 'mc' + _['marker-color'].replace('#', '');
-    if (_['marker-size']) hash = hash + 'ms' + _['marker-size'];
-    if (_['stroke']) hash = hash + 's' + _['stroke'].replace('#', '');
-    if (_['stroke-width']) hash = hash + 'sw' + _['stroke-width'].toString().replace('.', '');
-    if (_['stroke-opacity']) hash = hash + 'mo' + _['stroke-opacity'].toString().replace('.', '');
-    if (_['fill']) hash = hash + 'f' + _['fill'].replace('#', '');
-    if (_['fill-opacity']) hash = hash + 'fo' + _['fill-opacity'].toString().replace('.', '');
-    
-    return hash;
 }
 
 function polygonAndLineStyle(_, styleHash) {
@@ -255,6 +241,22 @@ function polygonAndLineStyle(_, styleHash) {
     }
     
     return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
+}
+
+// ## Style helpers
+function hashStyle(_) {
+    var hash = '';
+    
+    if (_['marker-symbol']) hash = hash + 'ms' + _['marker-symbol'];
+    if (_['marker-color']) hash = hash + 'mc' + _['marker-color'].replace('#', '');
+    if (_['marker-size']) hash = hash + 'ms' + _['marker-size'];
+    if (_['stroke']) hash = hash + 's' + _['stroke'].replace('#', '');
+    if (_['stroke-width']) hash = hash + 'sw' + _['stroke-width'].toString().replace('.', '');
+    if (_['stroke-opacity']) hash = hash + 'mo' + _['stroke-opacity'].toString().replace('.', '');
+    if (_['fill']) hash = hash + 'f' + _['fill'].replace('#', '');
+    if (_['fill-opacity']) hash = hash + 'fo' + _['fill-opacity'].toString().replace('.', '');
+    
+    return hash;
 }
 
 function hexToKmlColor(hexColor, opacity) {
@@ -284,7 +286,7 @@ function hexToKmlColor(hexColor, opacity) {
     return o + b + g + r;
 }
 
-// ## Helpers
+// ## General helpers
 function pairs(_) {
     var o = [];
     for (var i in _) o.push([i, _[i]]);
