@@ -61,9 +61,13 @@ test('tokml', function(t) {
     });
 
     test('simplestyle spec', function(tt) {
-        geq(tt, 'simplestyle', {
-            simplestyle: true
-        });
+        var options = { simplestyle: true };
+        
+        geq(tt, 'simplestyle_optionnotset');
+        geq(tt, 'simplestyle_nostyle', options);
+        geq(tt, 'simplestyle_point', options);
+        geq(tt, 'simplestyle_multiplesame', options);
+        geq(tt, 'simplestyle_multipledifferent', options);
         tt.end();
     });
 
