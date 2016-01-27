@@ -33,19 +33,26 @@ function feature(options, styleHashesArray) {
         if (options.simplestyle) {
             var styleHash = hashStyle(_.properties);
             if (styleHash) {
-                if (hasMarkerStyle(_.properties)) {
+                if (geometry.isPoint(_.geometry) && hasMarkerStyle(_.properties)) {
                     if (styleHashesArray.indexOf(styleHash) === -1) {
                         styleDefinition = markerStyle(_.properties, styleHash);
                         styleHashesArray.push(styleHash);
                     }
                     styleReference = tag('styleUrl', '#' + styleHash);
-                } else if (hasPolygonStyle(_.properties)) {
+                } else if (geometry.isPolygon(_.geometry) && hasPolygonStyle(_.properties)) {
                     if (styleHashesArray.indexOf(styleHash) === -1) {
                         styleDefinition = polygonStyle(_.properties, styleHash);
                         styleHashesArray.push(styleHash);
                     }
                     styleReference = tag('styleUrl', '#' + styleHash);
+                } else if (geometry.isLine(_.geometry) && hasLineStyle(_.properties)) {
+                    if (styleHashesArray.indexOf(styleHash) === -1) {
+                        styleDefinition = lineStyle(_.properties, styleHash);
+                        styleHashesArray.push(styleHash);
+                    }
+                    styleReference = tag('styleUrl', '#' + styleHash);
                 }
+                // TODO: style for MultiGeometry is not supported!
             }
         }
         
@@ -152,6 +159,18 @@ var geometry = {
         } else {
             return '';
         }
+    },
+    isPoint: function(_) {
+        return _.type === 'Point' ||
+        _.type === 'MultiPoint';
+    },
+    isPolygon: function(_) {
+        return _.type === 'Polygon' ||
+        _.type === 'MultiPolygon';
+    },
+    isLine: function(_) {
+        return _.type === 'LineString' ||
+        _.type === 'MultiLineString';
     }
 };
 
@@ -211,6 +230,16 @@ function hasPolygonStyle(_) {
     }
 }
 
+function hasLineStyle(_) {
+    for (var key in _) {
+        if ({
+            "stroke": true,
+            "stroke-opacity": true,
+            "stroke-width": true
+        }[key]) return true;
+    }
+}
+
 function hashStyle(_) {
     return (_['marker-symbol'] || '') +
         (_['marker-color'] || '').replace('#', '') +
@@ -231,6 +260,14 @@ function polygonStyle(_, styleHash) {
         ['color', _.fill || '555555']
     ]);
     return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
+}
+
+function lineStyle(_, styleHash) {
+    var lineStyle = tag('LineStyle', '', [
+        ['color', _.stroke || '555555'],
+        ['width', _['stroke-width'] === undefined ? 2 : _['stroke-width']]
+    ]);
+    return tag('Style', lineStyle, [['id', styleHash]]);
 }
 
 // ## Helpers
