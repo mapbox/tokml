@@ -16,7 +16,7 @@ test('tokml', function(t) {
     }
     
     function testColor(t, inputColor, inputOpacity, expected) {
-        var featureCollection = file('lineString.geojson');
+        var featureCollection = file('linestring.geojson');
         var props = featureCollection.features[0].properties;
         if (inputColor !== null) props['stroke'] = inputColor;
         if (inputOpacity !== null) props['stroke-opacity'] = inputOpacity;
