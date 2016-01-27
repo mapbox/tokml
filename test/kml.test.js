@@ -65,11 +65,16 @@ test('tokml', function(t) {
         
         geq(tt, 'simplestyle_optionnotset');
         geq(tt, 'simplestyle_nostyle', options);
+        
+        geq(tt, 'simplestyle_multiple_same', options);
+        geq(tt, 'simplestyle_multiple_different', options);
+        
         geq(tt, 'simplestyle_point', options);
         geq(tt, 'simplestyle_point_nosymbol', options);
         geq(tt, 'simplestyle_point_defaults', options);
-        geq(tt, 'simplestyle_multiple_same', options);
-        geq(tt, 'simplestyle_multiple_different', options);
+        
+        geq(tt, 'simplestyle_linestring', options);
+        geq(tt, 'simplestyle_linestring_defaults', options);
         tt.end();
     });
 

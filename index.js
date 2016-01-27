@@ -245,27 +245,27 @@ function hashStyle(_) {
         (_['marker-color'] || '').replace('#', '') +
         (_['marker-size'] || '') +
         (_['stroke'] || '').replace('#', '') +
-        (_['stroke-width'] || '').replace('.', '') +
-        (_['stroke-opacity'] || '').replace('.', '') +
+        (_['stroke-width'] ? _['stroke-width'].toString() : '').replace('.', '') +
+        (_['stroke-opacity'] ? _['stroke-opacity'].toString() : '').replace('.', '') +
         (_['fill'] || '').replace('#', '') +
-        (_['fill-opacity'] || '').replace('.', '');
+        (_['fill-opacity'] ? _['fill-opacity'].toString() : '').replace('.', '');
 }
 
 function polygonStyle(_, styleHash) {
-    var lineStyle = tag('LineStyle', '', [
-        ['color', _.stroke || '555555'],
-        ['width', _['stroke-width'] === undefined ? 2 : _['stroke-width']]
+    var lineStyle = tag('LineStyle', [
+        tag('color', _.stroke || '555555') +
+        tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
     ]);
-    var polyStyle = tag('PolyStyle', '', [
-        ['color', _.fill || '555555']
+    var polyStyle = tag('PolyStyle', [
+        tag('color', _.fill || '555555')
     ]);
     return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
 }
 
 function lineStyle(_, styleHash) {
-    var lineStyle = tag('LineStyle', '', [
-        ['color', _.stroke || '555555'],
-        ['width', _['stroke-width'] === undefined ? 2 : _['stroke-width']]
+    var lineStyle = tag('LineStyle', [
+        tag('color', _.stroke || '555555') +
+        tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
     ]);
     return tag('Style', lineStyle, [['id', styleHash]]);
 }
