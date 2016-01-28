@@ -1,3 +1,7 @@
+## 0.4.0
+
+* Adds support for simplestyle-spec. Thanks [Vincent Sels!](https://github.com/vincentsels)
+
 ## 0.3.0
 
 * Add support for encoding the KML TimeStamp tag from a field in a GeoJSON
