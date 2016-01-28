@@ -1,0 +1,13 @@
+{ "type": "FeatureCollection",
+  "features": [{
+    "type": "Feature",
+    "geometry": { 
+      "type": "GeometryCollection"
+    },
+    "properties": {
+      "prop0": "value0",
+      "prop1": "val2"
+      }
+    }
+  ]
+}

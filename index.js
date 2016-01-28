@@ -22,17 +22,35 @@ module.exports = function tokml(geojson, options) {
                ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
 };
 
-function feature(options) {
+function feature(options, styleHashesArray) {
     return function(_) {
-        var styleDefinition = '',
-            styleReference = '';
-        if (options.simplestyle && hasStyle(_.properties)) {
-            styleDefinition = iconstyle(_.properties);
-            styleReference = tag('styleUrl', '#' + iconHash(_.properties));
-        }
         if (!_.properties || !geometry.valid(_.geometry)) return '';
         var geometryString = geometry.any(_.geometry);
         if (!geometryString) return '';
+        
+        var styleDefinition = '',
+            styleReference = '';
+        if (options.simplestyle) {
+            var styleHash = hashStyle(_.properties);
+            if (styleHash) {
+                if (geometry.isPoint(_.geometry) && hasMarkerStyle(_.properties)) {
+                    if (styleHashesArray.indexOf(styleHash) === -1) {
+                        styleDefinition = markerStyle(_.properties, styleHash);
+                        styleHashesArray.push(styleHash);
+                    }
+                    styleReference = tag('styleUrl', '#' + styleHash);
+                } else if ((geometry.isPolygon(_.geometry) || geometry.isLine(_.geometry)) && 
+                    hasPolygonAndLineStyle(_.properties)) {
+                    if (styleHashesArray.indexOf(styleHash) === -1) {
+                        styleDefinition = polygonAndLineStyle(_.properties, styleHash);
+                        styleHashesArray.push(styleHash);
+                    }
+                    styleReference = tag('styleUrl', '#' + styleHash);
+                }
+                // Note that style of GeometryCollection / MultiGeometry is not supported
+            }
+        }
+        
         return styleDefinition + tag('Placemark',
             name(_.properties, options) +
             description(_.properties, options) +
@@ -45,14 +63,16 @@ function feature(options) {
 
 function root(_, options) {
     if (!_.type) return '';
+    var styleHashesArray = [];
+            
     switch (_.type) {
         case 'FeatureCollection':
             if (!_.features) return '';
-            return _.features.map(feature(options)).join('');
+            return _.features.map(feature(options, styleHashesArray)).join('');
         case 'Feature':
-            return feature(options)(_);
+            return feature(options, styleHashesArray)(_);
         default:
-            return feature(options)({
+            return feature(options, styleHashesArray)({
                 type: 'Feature',
                 geometry: _,
                 properties: {}
@@ -126,7 +146,7 @@ var geometry = {
     },
     valid: function(_) {
         return _ && _.type && (_.coordinates ||
-            _.type === 'GeometryCollection' && _.geometries.every(geometry.valid));
+            _.type === 'GeometryCollection' && _.geometries && _.geometries.every(geometry.valid));
     },
     any: function(_) {
         if (geometry[_.type]) {
@@ -134,6 +154,18 @@ var geometry = {
         } else {
             return '';
         }
+    },
+    isPoint: function(_) {
+        return _.type === 'Point' ||
+        _.type === 'MultiPoint';
+    },
+    isPolygon: function(_) {
+        return _.type === 'Polygon' ||
+        _.type === 'MultiPolygon';
+    },
+    isLine: function(_) {
+        return _.type === 'LineString' ||
+        _.type === 'MultiLineString';
     }
 };
 
@@ -150,13 +182,17 @@ function data(_) {
     return tag('Data', tag('value', encode(_[1])), [['name', encode(_[0])]]);
 }
 
-// ## Icons
-function iconstyle(_) {
+// ## Marker style
+function hasMarkerStyle(_) {
+    return !!(_['marker-size'] || _['marker-symbol'] || _['marker-color']);
+}
+
+function markerStyle(_, styleHash) {
     return tag('Style',
         tag('IconStyle',
             tag('Icon',
                 tag('href', iconUrl(_)))) +
-        iconSize(_), [['id', iconHash(_)]]);
+        iconSize(_), [['id', styleHash]]);
 }
 
 function iconUrl(_) {
@@ -177,17 +213,80 @@ function iconSize(_) {
     ]);
 }
 
-function hasStyle(_) {
-    return !!(_['marker-size'] || _['marker-symbol'] || _['marker-color']);
+// ## Polygon and Line style
+function hasPolygonAndLineStyle(_) {
+    for (var key in _) {
+        if ({
+            "stroke": true,
+            "stroke-opacity": true,
+            "stroke-width": true,
+            "fill": true,
+            "fill-opacity": true
+        }[key]) return true;
+    }
 }
 
-function iconHash(_) {
-    return (_['marker-symbol'] || '') +
-        (_['marker-color'] || '').replace('#', '') +
-        (_['marker-size'] || '');
+function polygonAndLineStyle(_, styleHash) {
+    var lineStyle = tag('LineStyle', [
+        tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
+        tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
+    ]);
+    
+    var polyStyle = '';
+    
+    if (_['fill'] || _['fill-opacity']) {
+        polyStyle = tag('PolyStyle', [
+            tag('color', hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
+        ]);
+    }
+    
+    return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
 }
 
-// ## Helpers
+// ## Style helpers
+function hashStyle(_) {
+    var hash = '';
+    
+    if (_['marker-symbol']) hash = hash + 'ms' + _['marker-symbol'];
+    if (_['marker-color']) hash = hash + 'mc' + _['marker-color'].replace('#', '');
+    if (_['marker-size']) hash = hash + 'ms' + _['marker-size'];
+    if (_['stroke']) hash = hash + 's' + _['stroke'].replace('#', '');
+    if (_['stroke-width']) hash = hash + 'sw' + _['stroke-width'].toString().replace('.', '');
+    if (_['stroke-opacity']) hash = hash + 'mo' + _['stroke-opacity'].toString().replace('.', '');
+    if (_['fill']) hash = hash + 'f' + _['fill'].replace('#', '');
+    if (_['fill-opacity']) hash = hash + 'fo' + _['fill-opacity'].toString().replace('.', '');
+    
+    return hash;
+}
+
+function hexToKmlColor(hexColor, opacity) {
+    if (typeof hexColor !== 'string') return '';
+    
+    hexColor = hexColor.replace('#', '').toLowerCase();
+    
+    if (hexColor.length === 3) {
+        hexColor = hexColor[0] + hexColor[0] + 
+        hexColor[1] + hexColor[1] + 
+        hexColor[2] + hexColor[2];
+    } else if (hexColor.length !== 6) {
+        return '';
+    }
+    
+    var r = hexColor[0] + hexColor[1];
+    var g = hexColor[2] + hexColor[3];
+    var b = hexColor[4] + hexColor[5];
+    
+    var o = 'ff';
+    if (typeof opacity === 'number' && opacity >= 0.0 && opacity <= 1.0) {
+        o = (opacity * 255).toString(16);
+        if (o.indexOf('.') > -1) o = o.substr(0, o.indexOf('.'));
+        if (o.length < 2) o = '0' + o;
+    }
+    
+    return o + b + g + r;
+}
+
+// ## General helpers
 function pairs(_) {
     var o = [];
     for (var i in _) o.push([i, _[i]]);
