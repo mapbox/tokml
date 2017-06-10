@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "minimist": "0.1.0",
-    "strxml": "0.0.0",
+    "strxml": "1.0.0",
     "rw": "0.0.4"
   }
 }
