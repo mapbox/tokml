@@ -1,7 +1,7 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.tokml = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.tokml = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+var esc = require('xml-escape');
 var strxml = require('strxml'),
-    tag = strxml.tag,
-    encode = strxml.encode;
+    tag = strxml.tag;
 
 module.exports = function tokml(geojson, options) {
 
@@ -15,12 +15,12 @@ module.exports = function tokml(geojson, options) {
     };
 
     return '<?xml version="1.0" encoding="UTF-8"?>' +
-        tag('kml',
+        tag('kml', {'xmlns': 'http://www.opengis.net/kml/2.2'},
             tag('Document',
                 documentName(options) +
                 documentDescription(options) +
                 root(geojson, options)
-               ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
+               ));
 };
 
 function feature(options, styleHashesArray) {
@@ -90,15 +90,15 @@ function documentDescription(options) {
 }
 
 function name(_, options) {
-    return _[options.name] ? tag('name', encode(_[options.name])) : '';
+    return _[options.name] ? tag('name', esc(_[options.name])) : '';
 }
 
 function description(_, options) {
-    return _[options.description] ? tag('description', encode(_[options.description])) : '';
+    return _[options.description] ? tag('description', esc(_[options.description])) : '';
 }
 
 function timestamp(_, options) {
-    return _[options.timestamp] ? tag('TimeStamp', tag('when', encode(_[options.timestamp]))) : '';
+    return _[options.timestamp] ? tag('TimeStamp', tag('when', esc(_[options.timestamp]))) : '';
 }
 
 // ## Geometry Types
@@ -115,10 +115,10 @@ var geometry = {
         if (!_.coordinates.length) return '';
         var outer = _.coordinates[0],
             inner = _.coordinates.slice(1),
-            outerRing = tag('outerBoundaryIs',
+            outerRing = tag('outerBoundaryIs', 
                 tag('LinearRing', tag('coordinates', linearring(outer)))),
             innerRings = inner.map(function(i) {
-                return tag('innerBoundaryIs',
+                return tag('innerBoundaryIs', 
                     tag('LinearRing', tag('coordinates', linearring(i))));
             }).join('');
         return tag('Polygon', outerRing + innerRings);
@@ -176,11 +176,11 @@ function linearring(_) {
 
 // ## Data
 function extendeddata(_) {
-    return tag('ExtendedData', pairs(_).map(data).join(''));
+    return tag('ExtendedData', {}, pairs(_).map(data).join(''));
 }
 
 function data(_) {
-    return tag('Data', tag('value', encode(_[1])), [['name', encode(_[0])]]);
+    return tag('Data', {'name': _[0]}, tag('value', {}, esc(_[1] ? _[1].toString() : '')));
 }
 
 // ## Marker style
@@ -189,11 +189,12 @@ function hasMarkerStyle(_) {
 }
 
 function markerStyle(_, styleHash) {
-    return tag('Style',
-        tag('IconStyle',
-            tag('Icon',
-                tag('href', iconUrl(_)))) +
-        iconSize(_), [['id', styleHash]]);
+    return tag('Style', {'id': styleHash},
+            tag('IconStyle',
+                tag('Icon',
+                    tag('href', iconUrl(_)))
+                ) + iconSize(_)
+            );
 }
 
 function iconUrl(_) {
@@ -206,12 +207,12 @@ function iconUrl(_) {
 }
 
 function iconSize(_) {
-    return tag('hotSpot', '', [
-        ['xunits', 'fraction'],
-        ['yunits', 'fraction'],
-        ['x', 0.5],
-        ['y', 0.5]
-    ]);
+    return tag('hotSpot', {
+        'xunits': 'fraction',
+        'yunits': 'fraction',
+        'x': '0.5',
+        'y': '0.5'
+    }, '');
 }
 
 // ## Polygon and Line style
@@ -228,20 +229,19 @@ function hasPolygonAndLineStyle(_) {
 }
 
 function polygonAndLineStyle(_, styleHash) {
-    var lineStyle = tag('LineStyle', [
-        tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
-        tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
-    ]);
+    var lineStyle = tag('LineStyle', tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
+        tag('width', {}, _['stroke-width'] === undefined ? 2 : _['stroke-width'])
+    );
     
     var polyStyle = '';
     
     if (_['fill'] || _['fill-opacity']) {
-        polyStyle = tag('PolyStyle', [
-            tag('color', hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
-        ]);
+        polyStyle = tag('PolyStyle', 
+            tag('color', {}, hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
+        );
     }
     
-    return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
+    return tag('Style', {'id': styleHash}, lineStyle + polyStyle);
 }
 
 // ## Style helpers
@@ -290,23 +290,31 @@ function hexToKmlColor(hexColor, opacity) {
 // ## General helpers
 function pairs(_) {
     var o = [];
-    for (var i in _) o.push([i, _[i]]);
+    for (var i in _){
+        if(_[i]){
+            o.push([i, _[i]]);
+        }else{
+            o.push([i, '']);
+        }
+    }
     return o;
 }
-},{"strxml":2}],2:[function(require,module,exports){
+},{"strxml":2,"xml-escape":3}],2:[function(require,module,exports){
+var esc = require('xml-escape');
+
 module.exports.attr = attr;
 module.exports.tagClose = tagClose;
 module.exports.tag = tag;
-module.exports.encode = encode;
 
 /**
  * @param {array} _ an array of attributes
  * @returns {string}
  */
-function attr(_) {
-    return (_ && _.length) ? (' ' + _.map(function(a) {
-        return a[0] + '="' + a[1] + '"';
-    }).join(' ')) : '';
+function attr(attributes) {
+    if (!Object.keys(attributes).length) return '';
+    return ' ' + Object.keys(attributes).map(function(key) {
+        return key + '="' + esc(attributes[key]) + '"';
+    }).join(' ');
 }
 
 /**
@@ -324,20 +332,39 @@ function tagClose(el, attributes) {
  * @param {array} attributes array of pairs
  * @returns {string}
  */
-function tag(el, contents, attributes) {
+function tag(el, attributes, contents) {
+    if (Array.isArray(attributes) || typeof attributes === 'string') {
+        contents = attributes;
+        attributes = {};
+    }
+    if (Array.isArray(contents)) contents = '\n' + contents.map(function(content) {
+        return '  ' + content;
+    }).join('\n') + '\n';
     return '<' + el + attr(attributes) + '>' + contents + '</' + el + '>';
 }
 
-/**
- * @param {string} _ a string of attribute
- * @returns {string}
- */
-function encode(_) {
-    return (_ === null ? '' : _.toString()).replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+},{"xml-escape":3}],3:[function(require,module,exports){
+
+
+var escape = module.exports = function escape(string, ignore) {
+  var pattern;
+
+  if (string === null || string === undefined) return;
+
+  ignore = (ignore || '').replace(/[^&"<>\']/g, '');
+  pattern = '([&"<>\'])'.replace(new RegExp('[' + ignore + ']', 'g'), '');
+
+  return string.replace(new RegExp(pattern, 'g'), function(str, item) {
+            return escape.map[item];
+          })
 }
 
+var map = escape.map = {
+    '>': '&gt;'
+  , '<': '&lt;'
+  , "'": '&apos;'
+  , '"': '&quot;'
+  , '&': '&amp;'
+}
 },{}]},{},[1])(1)
 });
