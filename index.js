@@ -89,15 +89,15 @@ function documentDescription(options) {
 }
 
 function name(_, options) {
-    return _[options.name] ? tag('name', _[options.name]) : '';
+    return _[options.name] ? tag('name', esc(_[options.name])) : '';
 }
 
 function description(_, options) {
-    return _[options.description] ? tag('description', _[options.description]) : '';
+    return _[options.description] ? tag('description', esc(_[options.description])) : '';
 }
 
 function timestamp(_, options) {
-    return _[options.timestamp] ? tag('TimeStamp', tag('when', _[options.timestamp])) : '';
+    return _[options.timestamp] ? tag('TimeStamp', tag('when', esc(_[options.timestamp]))) : '';
 }
 
 // ## Geometry Types
