@@ -1,6 +1,6 @@
+var esc = require('xml-escape');
 var strxml = require('strxml'),
-    tag = strxml.tag,
-    encode = strxml.encode;
+    tag = strxml.tag;
 
 module.exports = function tokml(geojson, options) {
 
@@ -14,12 +14,12 @@ module.exports = function tokml(geojson, options) {
     };
 
     return '<?xml version="1.0" encoding="UTF-8"?>' +
-        tag('kml',
+        tag('kml', {'xmlns': 'http://www.opengis.net/kml/2.2'},
             tag('Document',
                 documentName(options) +
                 documentDescription(options) +
                 root(geojson, options)
-               ), [['xmlns', 'http://www.opengis.net/kml/2.2']]);
+               ));
 };
 
 function feature(options, styleHashesArray) {
@@ -89,15 +89,15 @@ function documentDescription(options) {
 }
 
 function name(_, options) {
-    return _[options.name] ? tag('name', encode(_[options.name])) : '';
+    return _[options.name] ? tag('name', esc(_[options.name])) : '';
 }
 
 function description(_, options) {
-    return _[options.description] ? tag('description', encode(_[options.description])) : '';
+    return _[options.description] ? tag('description', esc(_[options.description])) : '';
 }
 
 function timestamp(_, options) {
-    return _[options.timestamp] ? tag('TimeStamp', tag('when', encode(_[options.timestamp]))) : '';
+    return _[options.timestamp] ? tag('TimeStamp', tag('when', esc(_[options.timestamp]))) : '';
 }
 
 // ## Geometry Types
@@ -114,10 +114,10 @@ var geometry = {
         if (!_.coordinates.length) return '';
         var outer = _.coordinates[0],
             inner = _.coordinates.slice(1),
-            outerRing = tag('outerBoundaryIs',
+            outerRing = tag('outerBoundaryIs', 
                 tag('LinearRing', tag('coordinates', linearring(outer)))),
             innerRings = inner.map(function(i) {
-                return tag('innerBoundaryIs',
+                return tag('innerBoundaryIs', 
                     tag('LinearRing', tag('coordinates', linearring(i))));
             }).join('');
         return tag('Polygon', outerRing + innerRings);
@@ -175,11 +175,11 @@ function linearring(_) {
 
 // ## Data
 function extendeddata(_) {
-    return tag('ExtendedData', pairs(_).map(data).join(''));
+    return tag('ExtendedData', {}, pairs(_).map(data).join(''));
 }
 
 function data(_) {
-    return tag('Data', tag('value', encode(_[1])), [['name', encode(_[0])]]);
+    return tag('Data', {'name': _[0]}, tag('value', {}, esc(_[1] ? _[1].toString() : '')));
 }
 
 // ## Marker style
@@ -188,11 +188,12 @@ function hasMarkerStyle(_) {
 }
 
 function markerStyle(_, styleHash) {
-    return tag('Style',
-        tag('IconStyle',
-            tag('Icon',
-                tag('href', iconUrl(_)))) +
-        iconSize(_), [['id', styleHash]]);
+    return tag('Style', {'id': styleHash},
+            tag('IconStyle',
+                tag('Icon',
+                    tag('href', iconUrl(_)))
+                ) + iconSize(_)
+            );
 }
 
 function iconUrl(_) {
@@ -205,12 +206,12 @@ function iconUrl(_) {
 }
 
 function iconSize(_) {
-    return tag('hotSpot', '', [
-        ['xunits', 'fraction'],
-        ['yunits', 'fraction'],
-        ['x', 0.5],
-        ['y', 0.5]
-    ]);
+    return tag('hotSpot', {
+        'xunits': 'fraction',
+        'yunits': 'fraction',
+        'x': '0.5',
+        'y': '0.5'
+    }, '');
 }
 
 // ## Polygon and Line style
@@ -227,20 +228,19 @@ function hasPolygonAndLineStyle(_) {
 }
 
 function polygonAndLineStyle(_, styleHash) {
-    var lineStyle = tag('LineStyle', [
-        tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
-        tag('width', _['stroke-width'] === undefined ? 2 : _['stroke-width'])
-    ]);
+    var lineStyle = tag('LineStyle', tag('color', hexToKmlColor(_['stroke'], _['stroke-opacity']) || 'ff555555') +
+        tag('width', {}, _['stroke-width'] === undefined ? 2 : _['stroke-width'])
+    );
     
     var polyStyle = '';
     
     if (_['fill'] || _['fill-opacity']) {
-        polyStyle = tag('PolyStyle', [
-            tag('color', hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
-        ]);
+        polyStyle = tag('PolyStyle', 
+            tag('color', {}, hexToKmlColor(_['fill'], _['fill-opacity']) || '88555555')
+        );
     }
     
-    return tag('Style', lineStyle + polyStyle, [['id', styleHash]]);
+    return tag('Style', {'id': styleHash}, lineStyle + polyStyle);
 }
 
 // ## Style helpers
@@ -289,6 +289,12 @@ function hexToKmlColor(hexColor, opacity) {
 // ## General helpers
 function pairs(_) {
     var o = [];
-    for (var i in _) o.push([i, _[i]]);
+    for (var i in _){
+        if(_[i]){
+            o.push([i, _[i]]);
+        }else{
+            o.push([i, '']);
+        }
+    }
     return o;
 }
