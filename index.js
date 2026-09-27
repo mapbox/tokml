@@ -81,11 +81,11 @@ function root(_, options) {
 }
 
 function documentName(options) {
-    return (options.documentName !== undefined) ? tag('name', options.documentName) : '';
+    return (options.documentName !== undefined) ? tag('name', encode(String(options.documentName))) : '';
 }
 
 function documentDescription(options) {
-    return (options.documentDescription !== undefined) ? tag('description', options.documentDescription) : '';
+    return (options.documentDescription !== undefined) ? tag('description', encode(String(options.documentDescription))) : '';
 }
 
 function name(_, options) {
