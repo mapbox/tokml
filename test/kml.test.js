@@ -153,6 +153,23 @@ test('tokml', function(t) {
     });
 });
 
+test('document name and description are xml-escaped', function(t) {
+    var point = {
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'Point', coordinates: [0, 0] }
+    };
+    var kml = tokml(point, {
+        documentName: 'A & B <C>',
+        documentDescription: 'D "E"'
+    });
+    t.equal(kml.indexOf('<name>A & B <C></name>'), -1, 'raw document name');
+    t.notEqual(kml.indexOf('<name>A &amp; B &lt;C&gt;</name>'), -1, 'escaped document name');
+    t.equal(kml.indexOf('<description>D "E"</description>'), -1, 'raw document description');
+    t.notEqual(kml.indexOf('<description>D &quot;E&quot;</description>'), -1, 'escaped document description');
+    t.end();
+});
+
 function file(f) {
     return JSON.parse(fs.readFileSync(__dirname + '/data/' + f));
 }
